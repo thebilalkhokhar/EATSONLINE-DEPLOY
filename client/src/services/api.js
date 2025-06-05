@@ -1,7 +1,11 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:5000",
+  baseURL:
+    import.meta.env.VITE_REACT_APP_API_URL ||
+    (import.meta.env.MODE === "production"
+      ? "https://eatsonline-f3yo.onrender.com"
+      : "http://localhost:5000"),
 });
 
 // Request interceptor
@@ -30,7 +34,7 @@ api.interceptors.response.use(
     console.error("Response error:", error);
     if (error.response?.status === 401) {
       sessionStorage.clear();
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
@@ -55,15 +59,20 @@ export const getOrders = (userId, role) =>
   });
 export const getOrderDetails = (orderId, token) =>
   api.get(`/api/orders/${orderId}`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}` },
   });
 export const updateOrderStatus = (orderId, data) =>
   api.put(`/api/orders/${orderId}`, data);
 export const placeOrder = (data) => api.post("/api/orders", data);
+export const getOrderStatus = (orderId) =>
+  api.get(`/api/orders/${orderId}/status`);
 
 // Products
 export const getProducts = (restaurantId = null) =>
-  api.get("/api/products", restaurantId ? { params: { restaurantId } } : undefined);
+  api.get(
+    "/api/products",
+    restaurantId ? { params: { restaurantId } } : undefined
+  );
 export const addProduct = (data) => api.post("/api/products", data);
 export const updateProduct = (productId, data) =>
   api.put(`/api/products/${productId}`, data);
@@ -90,14 +99,14 @@ export const getRestaurants = () => api.get("/api/restaurants");
 export const createRestaurant = (formData) => {
   return api.post("/api/restaurants", formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
 };
 export const updateRestaurant = (restaurantId, formData) => {
   return api.put(`/api/restaurants/${restaurantId}`, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
 };
@@ -107,4 +116,5 @@ export const getRestaurantDetails = (restaurantId) =>
 // Reviews
 export const getReviews = () => api.get("/api/reviews");
 export const createReview = (data) => api.post("/api/reviews", data);
-export const getReviewByOrder = (orderId) => api.get(`/api/reviews/order/${orderId}`);
+export const getReviewByOrder = (orderId) =>
+  api.get(`/api/reviews/order/${orderId}`);
