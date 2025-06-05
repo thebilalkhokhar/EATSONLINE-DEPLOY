@@ -118,3 +118,5 @@ export const getReviews = () => api.get("/api/reviews");
 export const createReview = (data) => api.post("/api/reviews", data);
 export const getReviewByOrder = (orderId) =>
   api.get(`/api/reviews/order/${orderId}`);
+export const getReviewsByRestaurant = (restaurantId) =>
+  api.get(`/api/reviews/restaurant/${restaurantId}`);

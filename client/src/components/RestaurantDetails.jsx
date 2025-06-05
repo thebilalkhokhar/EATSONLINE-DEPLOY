@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { Rating } from '@mui/material';
-import ReviewList from './ReviewList';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { Rating } from "@mui/material";
+import ReviewList from "./ReviewList";
+import { getRestaurantDetails, getReviewsByRestaurant } from "../services/api";
 
 const RestaurantDetails = () => {
   const { restaurantId } = useParams();
@@ -14,13 +14,13 @@ const RestaurantDetails = () => {
     const fetchRestaurantAndReviews = async () => {
       try {
         const [restaurantResponse, reviewsResponse] = await Promise.all([
-          axios.get(`/api/restaurants/${restaurantId}`),
-          axios.get(`/api/reviews/restaurant/${restaurantId}`)
+          getRestaurantDetails(restaurantId),
+          getReviewsByRestaurant(restaurantId),
         ]);
         setRestaurant(restaurantResponse.data);
         setReviews(reviewsResponse.data);
       } catch (error) {
-        console.error('Error fetching restaurant details:', error);
+        console.error("Error fetching restaurant details:", error);
       } finally {
         setLoading(false);
       }
@@ -54,7 +54,8 @@ const RestaurantDetails = () => {
           <div>
             <span className="font-semibold">Address: </span>
             <span>
-              {restaurant.address.street}, {restaurant.address.city}, {restaurant.address.country}
+              {restaurant.address.street}, {restaurant.address.city},{" "}
+              {restaurant.address.country}
             </span>
           </div>
           <div>
@@ -63,11 +64,11 @@ const RestaurantDetails = () => {
           </div>
           <div>
             <span className="font-semibold">Cuisine: </span>
-            <span>{restaurant.cuisineType.join(', ')}</span>
+            <span>{restaurant.cuisineType.join(", ")}</span>
           </div>
           <div>
             <span className="font-semibold">Delivery Available: </span>
-            <span>{restaurant.deliveryAvailable ? 'Yes' : 'No'}</span>
+            <span>{restaurant.deliveryAvailable ? "Yes" : "No"}</span>
           </div>
           {restaurant.description && (
             <div>
@@ -86,4 +87,4 @@ const RestaurantDetails = () => {
   );
 };
 
-export default RestaurantDetails; 
+export default RestaurantDetails;
