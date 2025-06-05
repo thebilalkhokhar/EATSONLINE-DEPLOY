@@ -78,14 +78,16 @@ function Dashboard() {
         setTotalCategories(categoriesRes.data.length || 0);
         setRestaurant(restaurantRes.data);
 
-        const recentOrders = ordersRes.data.slice(0, 5);
+        // Ensure ordersRes.data is an array before processing
+        const ordersData = Array.isArray(ordersRes.data) ? ordersRes.data : [];
+        const recentOrders = ordersData.slice(0, 5);
         setOrders(recentOrders);
 
         const salesData = salesRes.data || {};
         setStats({
           totalOrders: salesData.totalOrders || 0,
           totalSales: salesData.totalSales || 0,
-          pendingOrders: recentOrders.filter((o) => o.status === "Pending").length || 0,
+          pendingOrders: Array.isArray(recentOrders) ? recentOrders.filter((o) => o.status === "Pending").length : 0,
         });
       } catch (err) {
         setError(
