@@ -2,6 +2,7 @@ require("dotenv").config();
 const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path"); // ✅ FIX: add this line
 const userRoutes = require("./routes/userRoutes");
 const { router: paymentRouter, webhook } = require('./routes/paymentRoutes');
 
@@ -13,13 +14,12 @@ app.use(express.static(path.join(__dirname, 'client/dist')));
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname+'/client/dist/index.html'));
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
 });
-
 
 // Configure Stripe webhook route before other middleware
 app.post('/api/webhook', 
-  express.raw({type: 'application/json'}), 
+  express.raw({ type: 'application/json' }), 
   webhook
 );
 
@@ -51,14 +51,14 @@ const connectWithRetry = () => {
     .connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // 5 seconds timeout
-      connectTimeoutMS: 10000, // 10 seconds connect timeout
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
     })
     .then(() => console.log("MongoDB Connected"))
     .catch((err) => {
       console.error("MongoDB Connection Error:", err.message);
       console.log("Retrying MongoDB connection in 5 seconds...");
-      setTimeout(connectWithRetry, 5000); // Retry after 5 seconds
+      setTimeout(connectWithRetry, 5000);
     });
 };
 
