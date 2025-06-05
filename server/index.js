@@ -2,30 +2,23 @@ require("dotenv").config();
 const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
-const path = require("path"); // ✅ FIX: add this line
+const path = require("path");
 const userRoutes = require("./routes/userRoutes");
-const { router: paymentRouter, webhook } = require('./routes/paymentRoutes');
+const { router: paymentRouter, webhook } = require("./routes/paymentRoutes");
 
 const app = express();
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
-
-// Configure Stripe webhook route before other middleware
-app.post('/api/webhook', 
-  express.raw({ type: 'application/json' }), 
-  webhook
-);
-
 // Middleware
 app.use(express.json());
-app.use(cors());
+
+// CORS Configuration
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  })
+);
 
 // Set CSP Header
 app.use((req, res, next) => {
@@ -36,14 +29,35 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS Configuration for all other routes
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-  })
-);
+// Configure Stripe webhook route (needs raw body)
+app.post("/api/webhook", express.raw({ type: "application/json" }), webhook);
+
+// Routes
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/products", require("./routes/products"));
+app.use("/api/orders", require("./routes/orders"));
+app.use("/api/categories", require("./routes/categories"));
+app.use("/api/admin/reports", require("./routes/reports"));
+app.use("/api/cart", require("./routes/cart"));
+app.use("/api/admin", require("./routes/admin"));
+app.use("/api/restaurants", require("./routes/restaurants"));
+app.use("/api/reviews", require("./routes/reviews"));
+app.use("/api", paymentRouter);
+app.use("/api/users", userRoutes);
+
+// Serve static files from the React app (after API routes)
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+// Catch-all handler for React app
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+});
+
+// Fallback for debugging
+app.use((req, res) => {
+  console.log(`Route not found: ${req.method} ${req.url}`);
+  res.status(404).json({ message: "Route not found" });
+});
 
 // MongoDB Connection with Retry and Timeout
 const connectWithRetry = () => {
@@ -61,25 +75,6 @@ const connectWithRetry = () => {
 };
 
 connectWithRetry();
-
-// Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/products", require("./routes/products"));
-app.use("/api/orders", require("./routes/orders"));
-app.use("/api/categories", require("./routes/categories"));
-app.use("/api/admin/reports", require("./routes/reports"));
-app.use("/api/cart", require("./routes/cart"));
-app.use("/api/admin", require("./routes/admin"));
-app.use("/api/restaurants", require("./routes/restaurants"));
-app.use("/api/reviews", require("./routes/reviews"));
-app.use("/api", paymentRouter);
-app.use("/api/users", userRoutes);
-
-// Fallback for debugging
-app.use((req, res) => {
-  console.log(`Route not found: ${req.method} ${req.url}`);
-  res.status(404).json({ message: "Route not found" });
-});
 
 // Server Start
 const PORT = process.env.PORT || 5000;

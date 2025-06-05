@@ -3,11 +3,6 @@ import { createContext, useState, useEffect } from "react";
 // Create AuthContext for global state management
 export const AuthContext = createContext();
 
-/**
- * AuthProvider component to manage authentication state and provide it to the app
- * @param {Object} props - React props
- * @param {ReactNode} props.children - Child components to render within the provider
- */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedUser = sessionStorage.getItem("user");
@@ -25,6 +20,7 @@ export const AuthProvider = ({ children }) => {
     }
     if (user) {
       sessionStorage.setItem("user", JSON.stringify(user));
+      console.log("User state updated:", user); // Debug log
     } else {
       sessionStorage.removeItem("user");
     }
@@ -36,13 +32,12 @@ export const AuthProvider = ({ children }) => {
       console.error("Invalid login data:", { authToken, userData });
       return;
     }
-    console.log('Setting user data:', userData); // Debug log
-    
-    // Use the profileImage data directly from the server
+    console.log("Login user data:", userData); // Debug log
+
     setToken(authToken);
     setUser({
       ...userData,
-      restaurantId: userData.restaurantId || null
+      restaurantId: userData.restaurantId || null,
     });
   };
 
@@ -60,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     isAuthenticated: !!token && !!user,
-    setUser, // Adding setUser to context for manual updates
+    setUser,
   };
 
   return (

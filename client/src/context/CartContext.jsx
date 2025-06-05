@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { getCart } from "../services/api";
+import { toast } from "react-toastify";
 
 export const CartContext = createContext();
 
@@ -18,19 +19,22 @@ export const CartProvider = ({ children }) => {
 
     try {
       const res = await getCart(token);
-      const items = res.data.cart.items || [];
+      console.log("Cart API Response:", res.data); // Debug log
+      const items = res.data?.cart?.items || [];
       setCartItems(items);
-      // Calculate total quantity of all items
-      const totalQuantity = items.reduce((total, item) => total + (item.quantity || 0), 0);
+      const totalQuantity = items.reduce(
+        (total, item) => total + (item.quantity || 0),
+        0
+      );
       setCartCount(totalQuantity);
     } catch (err) {
-      console.error("Error fetching cart:", err);
+      console.error("Error fetching cart:", err.response || err);
       setCartItems([]);
       setCartCount(0);
+      toast.error(err.response?.data?.message || "Failed to load cart");
     }
   };
 
-  // Fetch cart when auth state changes
   useEffect(() => {
     fetchCart();
   }, [isAuthenticated, token]);
@@ -38,7 +42,7 @@ export const CartProvider = ({ children }) => {
   const value = {
     cartItems,
     cartCount,
-    refreshCart: fetchCart
+    refreshCart: fetchCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
@@ -50,4 +54,4 @@ export const useCart = () => {
     throw new Error("useCart must be used within a CartProvider");
   }
   return context;
-}; 
+};

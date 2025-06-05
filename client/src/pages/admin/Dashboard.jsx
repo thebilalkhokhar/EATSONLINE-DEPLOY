@@ -53,6 +53,7 @@ function Dashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      console.log("Dashboard loading state:", { loading, error, user }); // Debug
       if (!token || !user || user.role !== "admin") {
         setError("Access denied. Admins only.");
         setLoading(false);
@@ -61,24 +62,41 @@ function Dashboard() {
       }
 
       if (!user.restaurantId) {
+        console.log("No restaurantId for user:", user); // Debug
         setLoading(false);
         return;
       }
 
       try {
-        const [productsRes, categoriesRes, restaurantRes, ordersRes, salesRes] = await Promise.all([
-          getProducts(user.restaurantId).catch(() => ({ data: [] })),
-          getCategories(user.restaurantId).catch(() => ({ data: [] })),
-          getRestaurantDetails(user.restaurantId).catch(() => ({ data: null })),
-          getAdminOrders(token, user.restaurantId).catch(() => ({ data: [] })),
-          getSalesReport({ restaurantId: user.restaurantId }).catch(() => ({ data: { totalOrders: 0, totalSales: 0 } })),
-        ]);
+        console.log("User:", user);
+        console.log("Restaurant ID:", user.restaurantId);
+
+        const [productsRes, categoriesRes, restaurantRes, ordersRes, salesRes] =
+          await Promise.all([
+            getProducts(user.restaurantId).catch(() => ({ data: [] })),
+            getCategories(user.restaurantId).catch(() => ({ data: [] })),
+            getRestaurantDetails(user.restaurantId).catch(() => ({
+              data: null,
+            })),
+            getAdminOrders(token, user.restaurantId).catch(() => ({
+              data: [],
+            })),
+            getSalesReport({ restaurantId: user.restaurantId }).catch(() => ({
+              data: { totalOrders: 0, totalSales: 0 },
+            })),
+          ]);
+
+        console.log("Restaurant API Response:", restaurantRes);
 
         setTotalProducts(productsRes.data.length || 0);
         setTotalCategories(categoriesRes.data.length || 0);
-        setRestaurant(restaurantRes.data);
 
-        // Ensure ordersRes.data is an array before processing
+        const restaurantData = restaurantRes.data || null;
+        if (!restaurantData) {
+          console.warn("No restaurant data returned from API");
+        }
+        setRestaurant(restaurantData);
+
         const ordersData = Array.isArray(ordersRes.data) ? ordersRes.data : [];
         const recentOrders = ordersData.slice(0, 5);
         setOrders(recentOrders);
@@ -87,7 +105,9 @@ function Dashboard() {
         setStats({
           totalOrders: salesData.totalOrders || 0,
           totalSales: salesData.totalSales || 0,
-          pendingOrders: Array.isArray(recentOrders) ? recentOrders.filter((o) => o.status === "Pending").length : 0,
+          pendingOrders: Array.isArray(recentOrders)
+            ? recentOrders.filter((o) => o.status === "Pending").length
+            : 0,
         });
       } catch (err) {
         setError(
@@ -128,13 +148,13 @@ function Dashboard() {
 
   const handleRestaurantChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    
-    if (name === 'logo' && files && files[0]) {
+
+    if (name === "logo" && files && files[0]) {
       const file = files[0];
       setSelectedLogo(file);
-      setRestaurantForm(prev => ({
+      setRestaurantForm((prev) => ({
         ...prev,
-        logo: URL.createObjectURL(file)
+        logo: URL.createObjectURL(file),
       }));
       return;
     }
@@ -221,22 +241,32 @@ function Dashboard() {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      
-      formDataToSend.append('name', restaurantForm.name);
-      formDataToSend.append('address[street]', restaurantForm.address.street);
-      formDataToSend.append('address[city]', restaurantForm.address.city);
-      formDataToSend.append('address[country]', restaurantForm.address.country);
-      formDataToSend.append('address[postalCode]', restaurantForm.address.postalCode);
-      formDataToSend.append('contact[phone]', restaurantForm.contact.phone);
-      formDataToSend.append('contact[email]', restaurantForm.contact.email);
-      formDataToSend.append('cuisineType', JSON.stringify(restaurantForm.cuisineType));
-      formDataToSend.append('deliveryAvailable', restaurantForm.deliveryAvailable);
+
+      formDataToSend.append("name", restaurantForm.name);
+      formDataToSend.append("address[street]", restaurantForm.address.street);
+      formDataToSend.append("address[city]", restaurantForm.address.city);
+      formDataToSend.append("address[country]", restaurantForm.address.country);
+      formDataToSend.append(
+        "address[postalCode]",
+        restaurantForm.address.postalCode
+      );
+      formDataToSend.append("contact[phone]", restaurantForm.contact.phone);
+      formDataToSend.append("contact[email]", restaurantForm.contact.email);
+      formDataToSend.append(
+        "cuisineType",
+        JSON.stringify(restaurantForm.cuisineType)
+      );
+      formDataToSend.append(
+        "deliveryAvailable",
+        restaurantForm.deliveryAvailable
+      );
 
       if (selectedLogo) {
-        formDataToSend.append('logo', selectedLogo);
+        formDataToSend.append("logo", selectedLogo);
       }
 
       const res = await createRestaurant(formDataToSend);
+      console.log("Create Restaurant Response:", res.data); // Debug
       setRestaurant(res.data);
       setUser((prev) => ({ ...prev, restaurantId: res.data._id }));
       setShowRestaurantModal(false);
@@ -257,30 +287,39 @@ function Dashboard() {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      
-      formDataToSend.append('name', restaurantForm.name);
-      formDataToSend.append('address[street]', restaurantForm.address.street);
-      formDataToSend.append('address[city]', restaurantForm.address.city);
-      formDataToSend.append('address[country]', restaurantForm.address.country);
-      formDataToSend.append('address[postalCode]', restaurantForm.address.postalCode);
-      formDataToSend.append('contact[phone]', restaurantForm.contact.phone);
-      formDataToSend.append('contact[email]', restaurantForm.contact.email);
-      formDataToSend.append('cuisineType', JSON.stringify(restaurantForm.cuisineType));
-      formDataToSend.append('deliveryAvailable', restaurantForm.deliveryAvailable);
+
+      formDataToSend.append("name", restaurantForm.name);
+      formDataToSend.append("address[street]", restaurantForm.address.street);
+      formDataToSend.append("address[city]", restaurantForm.address.city);
+      formDataToSend.append("address[country]", restaurantForm.address.country);
+      formDataToSend.append(
+        "address[postalCode]",
+        restaurantForm.address.postalCode
+      );
+      formDataToSend.append("contact[phone]", restaurantForm.contact.phone);
+      formDataToSend.append("contact[email]", restaurantForm.contact.email);
+      formDataToSend.append(
+        "cuisineType",
+        JSON.stringify(restaurantForm.cuisineType)
+      );
+      formDataToSend.append(
+        "deliveryAvailable",
+        restaurantForm.deliveryAvailable
+      );
 
       if (selectedLogo) {
-        formDataToSend.append('logo', selectedLogo);
+        formDataToSend.append("logo", selectedLogo);
       }
 
       setLoading(true);
       const res = await updateRestaurant(user.restaurantId, formDataToSend);
       setRestaurant(res.data);
       setShowRestaurantModal(false);
-      
+
       const restaurantRes = await getRestaurantDetails(user.restaurantId);
       setRestaurant(restaurantRes.data);
       setLoading(false);
-      
+
       toast.success("Restaurant updated successfully!");
     } catch (err) {
       setLoading(false);
@@ -292,6 +331,8 @@ function Dashboard() {
       toast.error(err.response?.data?.message || "Failed to update restaurant");
     }
   };
+
+  console.log("Dashboard render:", { loading, error, user }); // Debug
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -345,12 +386,11 @@ function Dashboard() {
           <div className="restaurant-info">
             <h2>{restaurant?.name || "Restaurant"}</h2>
             <p>
-              Address: {restaurant?.address?.city || "N/A"}, {restaurant?.address?.country || "N/A"}
+              Address: {restaurant?.address?.city || "N/A"},{" "}
+              {restaurant?.address?.country || "N/A"}
             </p>
             <p>Contact: {restaurant?.contact?.phone || "N/A"}</p>
-            <button onClick={handleShowModal}>
-              Update Restaurant
-            </button>
+            <button onClick={handleShowModal}>Update Restaurant</button>
           </div>
 
           <div className="recent-orders">
@@ -376,9 +416,9 @@ function Dashboard() {
                       onChange={(e) =>
                         handleStatusUpdate(order._id, e.target.value)
                       }
-                      className={`status ${(
-                        order.status || "Pending"
-                      ).toLowerCase().replace(/\s+/g, '-')}`}
+                      className={`status ${(order.status || "Pending")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
                     >
                       <option value="Pending">Pending</option>
                       <option value="Confirmed">Confirmed</option>
@@ -403,9 +443,7 @@ function Dashboard() {
           <p>
             You don't have a restaurant yet. Create one to manage your business.
           </p>
-          <button onClick={handleShowModal}>
-            Create Restaurant
-          </button>
+          <button onClick={handleShowModal}>Create Restaurant</button>
         </div>
       )}
 
@@ -430,7 +468,10 @@ function Dashboard() {
                       <button
                         type="button"
                         onClick={() => {
-                          setRestaurantForm(prev => ({ ...prev, logo: null }));
+                          setRestaurantForm((prev) => ({
+                            ...prev,
+                            logo: null,
+                          }));
                           setSelectedLogo(null);
                         }}
                       >
@@ -438,9 +479,11 @@ function Dashboard() {
                       </button>
                     </div>
                   ) : (
-                    <div 
+                    <div
                       className="upload-placeholder"
-                      onClick={() => document.getElementById('logo-upload').click()}
+                      onClick={() =>
+                        document.getElementById("logo-upload").click()
+                      }
                     >
                       <FaImage />
                       <p>Click to upload logo</p>
@@ -451,11 +494,11 @@ function Dashboard() {
                     name="logo"
                     accept="image/*"
                     onChange={handleRestaurantChange}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     id="logo-upload"
                   />
                   <label htmlFor="logo-upload" className="upload-button">
-                    {restaurantForm.logo ? 'Change Logo' : 'Upload Logo'}
+                    {restaurantForm.logo ? "Change Logo" : "Upload Logo"}
                   </label>
                 </div>
 
