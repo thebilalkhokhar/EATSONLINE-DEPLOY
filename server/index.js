@@ -24,7 +24,13 @@ app.use(
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-eval' https://js.stripe.com https://m.stripe.network; connect-src 'self' https://api.stripe.com; frame-src 'self' https://js.stripe.com https://checkout.stripe.com;"
+    "default-src 'self'; " +
+      "script-src 'self' 'unsafe-eval' https://js.stripe.com https://m.stripe.network blob:https://js.stripe.com blob:https://m.stripe.network; " +
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+      "font-src 'self' data: https://fonts.gstatic.com; " +
+      "img-src 'self' data: https://*.cloudinary.com https://upload.wikimedia.org; " +
+      "connect-src 'self' https://api.stripe.com; " +
+      "frame-src 'self' https://js.stripe.com https://checkout.stripe.com;"
   );
   next();
 });
