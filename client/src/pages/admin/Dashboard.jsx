@@ -66,36 +66,33 @@ function Dashboard() {
       }
 
       try {
-        const productsRes = await getProducts(user.restaurantId);
+        const [productsRes, categoriesRes, restaurantRes, ordersRes, salesRes] = await Promise.all([
+          getProducts(user.restaurantId).catch(() => ({ data: [] })),
+          getCategories(user.restaurantId).catch(() => ({ data: [] })),
+          getRestaurantDetails(user.restaurantId).catch(() => ({ data: null })),
+          getAdminOrders(token, user.restaurantId).catch(() => ({ data: [] })),
+          getSalesReport({ restaurantId: user.restaurantId }).catch(() => ({ data: { totalOrders: 0, totalSales: 0 } })),
+        ]);
+
         setTotalProducts(productsRes.data.length || 0);
-
-        const categoriesRes = await getCategories(user.restaurantId);
         setTotalCategories(categoriesRes.data.length || 0);
-
-        const restaurantRes = await getRestaurantDetails(user.restaurantId);
         setRestaurant(restaurantRes.data);
 
-        const ordersRes = await getAdminOrders(token, user.restaurantId);
         const recentOrders = ordersRes.data.slice(0, 5);
         setOrders(recentOrders);
 
-        const salesRes = await getSalesReport({
-          restaurantId: user.restaurantId,
-        });
-        console.log("Sales Report Response:", salesRes); // Debugging
-        const salesData = salesRes.data || { totalOrders: 0, totalSales: 0 };
+        const salesData = salesRes.data || {};
         setStats({
-          totalOrders: salesData.data.totalOrders || 0,
-          totalSales: salesData.data.totalSales || 0,
-          pendingOrders:
-            recentOrders.filter((o) => o.status === "Pending").length || 0,
+          totalOrders: salesData.totalOrders || 0,
+          totalSales: salesData.totalSales || 0,
+          pendingOrders: recentOrders.filter((o) => o.status === "Pending").length || 0,
         });
       } catch (err) {
         setError(
           err.response?.data?.message ||
-            "Failed to load dashboard. Check sales report API."
+            "Failed to load dashboard. Please try again."
         );
-        console.error("Dashboard fetch error:", err.response || err); // Debugging
+        console.error("Dashboard fetch error:", err.response || err);
       } finally {
         setLoading(false);
       }
@@ -104,6 +101,7 @@ function Dashboard() {
   }, [token, user, navigate]);
 
   const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -119,8 +117,10 @@ function Dashboard() {
           o._id === orderId ? { ...o, status: res.data.status || newStatus } : o
         )
       );
+      toast.success("Order status updated successfully!");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update status");
+      toast.error(err.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -193,10 +193,8 @@ function Dashboard() {
 
   const handleShowModal = () => {
     if (user.restaurantId) {
-      // If updating existing restaurant, initialize form with current data
       initializeFormWithRestaurant();
     } else {
-      // If creating new restaurant, reset form to default values
       setRestaurantForm({
         name: "",
         address: {
@@ -219,11 +217,9 @@ function Dashboard() {
 
   const handleCreateRestaurant = async (e) => {
     e.preventDefault();
-    console.log("Submitting restaurant form:", restaurantForm); // Debugging
     try {
       const formDataToSend = new FormData();
       
-      // Append all text fields
       formDataToSend.append('name', restaurantForm.name);
       formDataToSend.append('address[street]', restaurantForm.address.street);
       formDataToSend.append('address[city]', restaurantForm.address.city);
@@ -234,24 +230,24 @@ function Dashboard() {
       formDataToSend.append('cuisineType', JSON.stringify(restaurantForm.cuisineType));
       formDataToSend.append('deliveryAvailable', restaurantForm.deliveryAvailable);
 
-      // Append logo if selected
       if (selectedLogo) {
         formDataToSend.append('logo', selectedLogo);
       }
 
       const res = await createRestaurant(formDataToSend);
-      console.log("Restaurant created:", res.data); // Debugging
       setRestaurant(res.data);
       setUser((prev) => ({ ...prev, restaurantId: res.data._id }));
       setShowRestaurantModal(false);
-      setLoading(true); // Force reload
+      setLoading(true);
+      toast.success("Restaurant created successfully!");
     } catch (err) {
-      console.error("Create restaurant error:", err.response || err); // Debugging
+      console.error("Create restaurant error:", err.response || err);
       setError(
         err.response?.data?.message ||
           err.message ||
           "Failed to create restaurant"
       );
+      toast.error(err.response?.data?.message || "Failed to create restaurant");
     }
   };
 
@@ -260,7 +256,6 @@ function Dashboard() {
     try {
       const formDataToSend = new FormData();
       
-      // Append all text fields
       formDataToSend.append('name', restaurantForm.name);
       formDataToSend.append('address[street]', restaurantForm.address.street);
       formDataToSend.append('address[city]', restaurantForm.address.city);
@@ -271,7 +266,6 @@ function Dashboard() {
       formDataToSend.append('cuisineType', JSON.stringify(restaurantForm.cuisineType));
       formDataToSend.append('deliveryAvailable', restaurantForm.deliveryAvailable);
 
-      // Append logo if selected
       if (selectedLogo) {
         formDataToSend.append('logo', selectedLogo);
       }
@@ -281,12 +275,10 @@ function Dashboard() {
       setRestaurant(res.data);
       setShowRestaurantModal(false);
       
-      // Refresh restaurant data
       const restaurantRes = await getRestaurantDetails(user.restaurantId);
       setRestaurant(restaurantRes.data);
       setLoading(false);
       
-      // Show success toast
       toast.success("Restaurant updated successfully!");
     } catch (err) {
       setLoading(false);
@@ -295,7 +287,6 @@ function Dashboard() {
           err.message ||
           "Failed to update restaurant"
       );
-      // Show error toast
       toast.error(err.response?.data?.message || "Failed to update restaurant");
     }
   };
@@ -314,7 +305,7 @@ function Dashboard() {
             <div className="restaurant-block">
               <div className="stat-card restaurant-stat">
                 <h3>Restaurant</h3>
-                <p>{restaurant.name}</p>
+                <p>{restaurant.name || "N/A"}</p>
               </div>
             </div>
           )}
@@ -322,15 +313,15 @@ function Dashboard() {
           <div className="stats-grid">
             <div className="stat-card">
               <h3>Total Orders</h3>
-              <p>{stats.totalOrders}</p>
+              <p>{stats.totalOrders || 0}</p>
             </div>
             <div className="stat-card">
               <h3>Total Sales</h3>
-              <p>PKR {stats.totalSales.toFixed(2)}</p>
+              <p>PKR {(stats.totalSales || 0).toFixed(2)}</p>
             </div>
             <div className="stat-card">
               <h3>Pending Orders</h3>
-              <p>{stats.pendingOrders}</p>
+              <p>{stats.pendingOrders || 0}</p>
             </div>
           </div>
 
@@ -352,9 +343,9 @@ function Dashboard() {
           <div className="restaurant-info">
             <h2>{restaurant?.name || "Restaurant"}</h2>
             <p>
-              Address: {restaurant?.address.city}, {restaurant?.address.country}
+              Address: {restaurant?.address?.city || "N/A"}, {restaurant?.address?.country || "N/A"}
             </p>
-            <p>Contact: {restaurant?.contact.phone}</p>
+            <p>Contact: {restaurant?.contact?.phone || "N/A"}</p>
             <button onClick={handleShowModal}>
               Update Restaurant
             </button>
@@ -375,7 +366,7 @@ function Dashboard() {
                 </div>
                 {orders.map((order) => (
                   <div key={order._id} className="table-row">
-                    <span>#{order._id.slice(-6)}</span>
+                    <span>#{order._id?.slice(-6) || "N/A"}</span>
                     <span>{formatDate(order.createdAt)}</span>
                     <span>PKR {(order.totalPrice || 0).toFixed(2)}</span>
                     <select
