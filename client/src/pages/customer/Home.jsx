@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 import HeroSlider from "../../components/HeroSlider";
-import FeaturedCategories from "../../components/FeaturedCategories";
+import FeaturedCategories from "../../components/FeaturedRestaurants";
 import PopularItems from "../../components/PopularItems";
 import ReviewSlider from '../../components/ReviewSlider';
 import HowItWorks from '../../components/HowItWorks';
 import DownloadApp from '../../components/DownloadApp';
 import "../../assets/Home.css";
+import FeaturedRestaurants from '../../components/FeaturedRestaurants';
 
 function Home() {
   return (
@@ -22,7 +23,7 @@ function Home() {
         </div>
       </div>
       <HowItWorks />
-      <FeaturedCategories />
+      <FeaturedRestaurants />
       <PopularItems />
       <ReviewSlider />
       <DownloadApp />

@@ -1,0 +1,213 @@
+.featuredRestaurants {
+    padding: 4rem 2rem;
+    background-color: #f8f9fa;
+  }
+  
+  .featuredRestaurantsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .featuredRestaurantsContainer h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  
+  .sectionDescription {
+    text-align: center;
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+  }
+  
+  .restaurantsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding: 1rem;
+  }
+  
+  .restaurantCard {
+    position: relative;
+    height: 200px;
+    border-radius: 15px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .restaurantCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+  
+  .restaurantOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.3),
+      rgba(0, 0, 0, 0.7)
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .restaurantCard:hover .restaurantOverlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(var(--restaurant-color-rgb), 0.7),
+      rgba(var(--restaurant-color-rgb), 0.9)
+    );
+  }
+  
+  .restaurantIcon {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .restaurantCard:hover .restaurantIcon {
+    transform: scale(1.2);
+  }
+  
+  .restaurantOverlay h3 {
+    color: white;
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 0;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .cuisineType {
+    color: #f1f1f1;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-weight: 400;
+  }
+  
+  .viewAllContainer {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  
+  .viewAllButton {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #ff6b6b;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .viewAllButton:hover {
+    background-color: #e55a5a;
+    color: white;
+    transform: translateY(-2px);
+  }
+  
+  .loading {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #6c757d;
+  }
+  
+  .error {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #dc3545;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 992px) {
+    .restaurantsGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .featuredRestaurants {
+      padding: 3rem 1rem;
+    }
+  
+    .featuredRestaurantsContainer h2 {
+      font-size: 2rem;
+    }
+  
+    .sectionDescription {
+      font-size: 1rem;
+    }
+  
+    .restaurantsGrid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  
+    .restaurantCard {
+      height: 180px;
+    }
+  
+    .restaurantIcon {
+      font-size: 2rem;
+    }
+  
+    .restaurantOverlay h3 {
+      font-size: 1.2rem;
+    }
+  
+    .cuisineType {
+      font-size: 0.8rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .featuredRestaurants {
+      padding: 2rem 1rem;
+    }
+  
+    .restaurantsGrid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  
+    .restaurantCard {
+      height: 150px;
+    }
+  
+    .restaurantIcon {
+      font-size: 1.8rem;
+    }
+  
+    .restaurantOverlay h3 {
+      font-size: 1.1rem;
+    }
+  
+    .cuisineType {
+      font-size: 0.7rem;
+    }
+  
+    .viewAllButton {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+  }
+  
