@@ -28,7 +28,7 @@ app.use((req, res, next) => {
       "script-src 'self' 'unsafe-eval' https://js.stripe.com https://m.stripe.network blob:https://js.stripe.com blob:https://m.stripe.network; " +
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "font-src 'self' data: https://fonts.gstatic.com; " +
-      "img-src 'self' data: https://*.cloudinary.com https://upload.wikimedia.org; " +
+      "img-src 'self' data: https://*.cloudinary.com https://upload.wikimedia.org https://images.pexels.com; " +
       "connect-src 'self' https://api.stripe.com https://m.stripe.network https://eatsonline-f3yo.onrender.com; " +
       "frame-src 'self' https://js.stripe.com https://checkout.stripe.com;"
   );
