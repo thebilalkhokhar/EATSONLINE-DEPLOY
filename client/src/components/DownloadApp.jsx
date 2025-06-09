@@ -34,7 +34,7 @@ const DownloadApp = () => (
         </ul>
       </div>
       <div className="download-app-image">
-        <img src="https://img.freepik.com/free-vector/realistic-smartphone-mockup-design_23-2148425643.jpg?w=740" alt="EatsOnline Mobile App" style={{ width: '220px', maxWidth: '100%', borderRadius: '2.5rem', background: '#fff0ea' }} />
+        <img src="https://res.cloudinary.com/dgralfdf3/image/upload/v1749467584/vector_wfoerl.png" alt="EatsOnline Mobile App" style={{ maxWidth: '100%', borderRadius: '2.5rem', background: '#fff0ea' }} />
       </div>
     </div>
   </section>
