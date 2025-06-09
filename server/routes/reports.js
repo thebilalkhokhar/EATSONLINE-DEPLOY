@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
-const User = require("../models/User"); // Added User model import
+const User = require("../models/User");
 const { adminMiddleware } = require("../middleware/auth");
 
 // @route   GET /api/admin/reports/sales
@@ -47,6 +47,8 @@ router.get("/sales", adminMiddleware, async (req, res) => {
       dateFilter.createdAt = {
         $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       };
+    } else if (period === "all") {
+      dateFilter = {}; // No date filter for "all"
     }
 
     // Add restaurantId filter
@@ -140,6 +142,12 @@ router.get("/sales", adminMiddleware, async (req, res) => {
           orders: data.orders,
         });
       }
+    } else if (period === "all") {
+      salesByPeriod.push({
+        period: "all",
+        sales: totalSales,
+        orders: totalOrders,
+      });
     }
 
     // Top products

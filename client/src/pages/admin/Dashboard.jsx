@@ -73,20 +73,33 @@ function Dashboard() {
 
         const [productsRes, categoriesRes, restaurantRes, ordersRes, salesRes] =
           await Promise.all([
-            getProducts(user.restaurantId).catch(() => ({ data: [] })),
-            getCategories(user.restaurantId).catch(() => ({ data: [] })),
-            getRestaurantDetails(user.restaurantId).catch(() => ({
-              data: null,
-            })),
-            getAdminOrders(token, user.restaurantId).catch(() => ({
-              data: [],
-            })),
-            getSalesReport({ restaurantId: user.restaurantId }).catch(() => ({
-              data: { totalOrders: 0, totalSales: 0 },
-            })),
+            getProducts(user.restaurantId).catch((err) => {
+              console.error("getProducts error:", err);
+              return { data: [] };
+            }),
+            getCategories(user.restaurantId).catch((err) => {
+              console.error("getCategories error:", err);
+              return { data: [] };
+            }),
+            getRestaurantDetails(user.restaurantId).catch((err) => {
+              console.error("getRestaurantDetails error:", err);
+              return { data: null };
+            }),
+            getAdminOrders(token, user.restaurantId).catch((err) => {
+              console.error("getAdminOrders error:", err);
+              return { data: [] };
+            }),
+            getSalesReport({
+              restaurantId: user.restaurantId,
+              period: "all",
+            }).catch((err) => {
+              console.error("getSalesReport error:", err);
+              return { data: { data: { totalOrders: 0, totalSales: 0 } } };
+            }),
           ]);
 
         console.log("Restaurant API Response:", restaurantRes);
+        console.log("Sales Report API Response:", salesRes); // Debug
 
         setTotalProducts(productsRes.data.length || 0);
         setTotalCategories(categoriesRes.data.length || 0);
@@ -101,7 +114,7 @@ function Dashboard() {
         const recentOrders = ordersData.slice(0, 5);
         setOrders(recentOrders);
 
-        const salesData = salesRes.data || {};
+        const salesData = salesRes.data.data || {};
         setStats({
           totalOrders: salesData.totalOrders || 0,
           totalSales: salesData.totalSales || 0,
@@ -332,7 +345,7 @@ function Dashboard() {
     }
   };
 
-  console.log("Dashboard render:", { loading, error, user }); // Debug
+  console.log("Dashboard render:", { stats }); // Debug
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -400,7 +413,7 @@ function Dashboard() {
             ) : (
               <div className="orders-table">
                 <div className="table-header">
-                  <span>Order ID</span>
+                  <span>Order</span>
                   <span>Date</span>
                   <span>Total</span>
                   <span>Status</span>
