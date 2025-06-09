@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import '../assets/HeroSlider.css';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import "../assets/HeroSlider.css";
 
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -9,28 +9,18 @@ const HeroSlider = () => {
   const slides = [
     {
       id: 1,
-      image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg',
-      // title: 'Delicious Food Delivered',
-      // description: 'Order your favorite meals from the best restaurants in town',
-      // buttonText: 'Order Now',
-      // buttonLink: '/restaurants'
+      image:
+        "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg",
     },
     {
       id: 2,
-      image: 'https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg',
-      // title: 'Special Offers',
-      // description: 'Get amazing deals on your favorite restaurants',
-      // buttonText: 'View Offers',
-      // buttonLink: '/offers'
+      image: "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg",
     },
     {
       id: 3,
-      image: 'https://images.pexels.com/photos/1640772/pexels-photo-1640772.jpeg',
-      // title: 'Fast Delivery',
-      // description: 'Quick and reliable delivery to your doorstep',
-      // buttonText: 'Learn More',
-      // buttonLink: '/about'
-    }
+      image:
+        "https://images.pexels.com/photos/1640772/pexels-photo-1640772.jpeg",
+    },
   ];
 
   const nextSlide = () => {
@@ -67,8 +57,10 @@ const HeroSlider = () => {
       {slides.map((slide, index) => (
         <div
           key={slide.id}
-          className={`slide ${index === currentSlide ? 'active' : ''} ${
-            index === (currentSlide - 1 + slides.length) % slides.length ? 'prev' : ''
+          className={`slide ${index === currentSlide ? "active" : ""} ${
+            index === (currentSlide - 1 + slides.length) % slides.length
+              ? "prev"
+              : ""
           }`}
         >
           <div className="slide-overlay"></div>
@@ -85,10 +77,10 @@ const HeroSlider = () => {
 
       <div className="slider-nav">
         <button className="prev-btn" onClick={prevSlide}>
-          ←
+          &lt;
         </button>
         <button className="next-btn" onClick={nextSlide}>
-          →
+          &gt;
         </button>
       </div>
 
@@ -96,7 +88,7 @@ const HeroSlider = () => {
         {slides.map((_, index) => (
           <div
             key={index}
-            className={`dot ${index === currentSlide ? 'active' : ''}`}
+            className={`dot ${index === currentSlide ? "active" : ""}`}
             onClick={() => goToSlide(index)}
           />
         ))}
@@ -105,4 +97,4 @@ const HeroSlider = () => {
   );
 };
 
-export default HeroSlider; 
+export default HeroSlider;

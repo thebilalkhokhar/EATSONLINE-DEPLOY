@@ -85,7 +85,7 @@
 .slide-content button {
   padding: 0.75rem 2rem;
   font-size: 1.1rem;
-  background-color: #ff5733;
+  background-color: #ff6b6b;
   color: white;
   border: none;
   border-radius: 8px;
@@ -105,9 +105,9 @@
 }
 
 .slide-content button:hover {
-  background-color: #e64a2e;
+  background-color: #e55a5a;
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(255, 87, 51, 0.3);
+  box-shadow: 0 6px 12px rgba(255, 107, 107, 0.3);
 }
 
 /* Navigation Buttons */
@@ -118,42 +118,51 @@
   transform: translateY(-50%);
   display: flex;
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0 2rem;
   z-index: 3;
   pointer-events: none;
 }
 
 .prev-btn,
 .next-btn {
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #1f2937;
+  background: linear-gradient(135deg, #ff6b6b, #e55a5a);
+  color: white;
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.2rem;
+  font-size: 1.8rem;
+  font-weight: bold;
   pointer-events: auto;
   opacity: 0;
-  transform: scale(0.8);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateX(var(--translate-x));
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.prev-btn {
+  --translate-x: -20px;
+}
+
+.next-btn {
+  --translate-x: 20px;
 }
 
 .hero-slider:hover .prev-btn,
 .hero-slider:hover .next-btn {
   opacity: 1;
-  transform: scale(1);
+  transform: translateX(0);
 }
 
 .prev-btn:hover,
 .next-btn:hover {
-  background-color: white;
-  transform: scale(1.1);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #e55a5a, #d44a4a);
+  transform: scale(1.15);
+  box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
 }
 
 /* Dots Navigation */
@@ -178,7 +187,7 @@
 }
 
 .dot.active {
-  background-color: #ff5733;
+  background-color: #ff6b6b;
   transform: scale(1.2);
   border-color: white;
 }
@@ -189,6 +198,19 @@
 }
 
 /* Responsive Design */
+@media (max-width: 992px) {
+  .hero-slider {
+    height: 450px;
+  }
+
+  .prev-btn,
+  .next-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.6rem;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-slider {
     height: 400px;
@@ -204,9 +226,10 @@
 
   .prev-btn,
   .next-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.4rem;
+    padding: 0 1.5rem;
   }
 
   .slider-dots {
@@ -236,4 +259,12 @@
     padding: 0.6rem 1.5rem;
     font-size: 1rem;
   }
-} 
+
+  .prev-btn,
+  .next-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 1.2rem;
+    padding: 0 1rem;
+  }
+}
