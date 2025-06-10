@@ -10,6 +10,7 @@ import {
   getCategories,
 } from "../../services/api";
 import { getImageUrl } from "../../utils/imageUpload";
+import { toast } from "react-toastify";
 import "../../assets/AdminCommon.css";
 import "../../assets/AdminProducts.css";
 
@@ -71,17 +72,17 @@ function Products() {
   }, [fetchData]);
 
   const handleChange = (e) => {
-    if (e.target.name === 'image') {
+    if (e.target.name === "image") {
       const file = e.target.files[0];
       if (file) {
         setSelectedImage(file);
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          image: URL.createObjectURL(file)
+          image: URL.createObjectURL(file),
         }));
       }
     } else {
-      setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+      setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     }
   };
 
@@ -89,21 +90,26 @@ function Products() {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('price', parseFloat(formData.price));
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('stock', parseInt(formData.stock));
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("price", parseFloat(formData.price));
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("stock", parseInt(formData.stock));
       if (selectedImage) {
-        formDataToSend.append('image', selectedImage);
+        formDataToSend.append("image", selectedImage);
       }
-      formDataToSend.append('restaurantId', user.restaurantId);
+      formDataToSend.append("restaurantId", user.restaurantId);
 
       if (editProduct) {
         await updateProduct(editProduct._id, formDataToSend);
       } else {
         await addProduct(formDataToSend);
       }
+
+      // Show success toast
+      toast.success(
+        `${formData.name} ${editProduct ? "updated" : "added"} successfully!`
+      );
 
       // Reset form
       setFormData({
@@ -117,12 +123,13 @@ function Products() {
       setSelectedImage(null);
       setEditProduct(null);
       setShowModal(false);
-      
+
       // Fetch fresh data
       await fetchData();
-      
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save product");
+      // Show error toast
+      toast.error(err.response?.data?.message || "Failed to save product");
     }
   };
 
@@ -160,19 +167,22 @@ function Products() {
         <FaArrowLeft /> Back to Dashboard
       </button>
       <h1>Manage Products</h1>
-      <button className="add-btn" onClick={() => {
-        setFormData({
-          name: "",
-          description: "",
-          price: "",
-          category: "",
-          stock: "",
-          image: null,
-        });
-        setSelectedImage(null);
-        setEditProduct(null);
-        setShowModal(true);
-      }}>
+      <button
+        className="add-btn"
+        onClick={() => {
+          setFormData({
+            name: "",
+            description: "",
+            price: "",
+            category: "",
+            stock: "",
+            image: null,
+          });
+          setSelectedImage(null);
+          setEditProduct(null);
+          setShowModal(true);
+        }}
+      >
         Add New Product
       </button>
 
@@ -229,7 +239,7 @@ function Products() {
                       <button
                         type="button"
                         onClick={() => {
-                          setFormData(prev => ({ ...prev, image: null }));
+                          setFormData((prev) => ({ ...prev, image: null }));
                           setSelectedImage(null);
                         }}
                       >
@@ -237,9 +247,11 @@ function Products() {
                       </button>
                     </div>
                   ) : (
-                    <div 
+                    <div
                       className="upload-placeholder"
-                      onClick={() => document.getElementById('image-upload').click()}
+                      onClick={() =>
+                        document.getElementById("image-upload").click()
+                      }
                     >
                       <FaImage />
                       <p>Click to upload image</p>
@@ -250,11 +262,11 @@ function Products() {
                     name="image"
                     accept="image/*"
                     onChange={handleChange}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     id="image-upload"
                   />
                   <label htmlFor="image-upload" className="upload-button">
-                    {formData.image ? 'Change Image' : 'Upload Image'}
+                    {formData.image ? "Change Image" : "Upload Image"}
                   </label>
                 </div>
 
