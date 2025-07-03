@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema(
       ref: "Restaurant",
       default: null,
     },
+      profileImage: {
+  public_id: { type: String, default: 'default-profile' },
+  url: { type: String, default: '' }
+}
   },
   {
     timestamps: true,
